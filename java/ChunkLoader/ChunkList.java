@@ -57,7 +57,7 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
 
     // returns true if chunk is in list
     // starting point for find method so we don't need to enter start/end
-    public int find(Chunk chunk) {https://i.imgur.com/GlxfP82.jpg
+    public int find(Chunk chunk) {
         if(chunks.size() == 0) {
             return -1;
         }
@@ -130,10 +130,6 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
 
     public int size() {
         return chunks.size();
-    }
-
-    public void load() {
-        // load chunks from saved file somehow
     }
 
     @Override
