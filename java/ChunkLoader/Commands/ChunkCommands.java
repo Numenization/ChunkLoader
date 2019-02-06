@@ -9,9 +9,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.awt.font.NumericShaper;
+import java.io.FileNotFoundException;
 
 public class ChunkCommands implements CommandExecutor {
 
+    // this class will allow us to easily pass on all the parameters of a command execution on to the functions
+    // that will be executed by the commands
     private final class CommandContext {
         public CommandSender sender;
         public Command cmd;
@@ -63,15 +66,19 @@ public class ChunkCommands implements CommandExecutor {
 
     private boolean chunkAdd(CommandContext context) {
         // add the chunk the player is currently standing in to the list
+
+        // only ingame players can use this command
         if(!(context.sender instanceof Player)) {
             context.sender.sendMessage("Only players can use the add command.");
         }
 
+        // get chunk the player is standing in
         Player player = (Player)context.sender;
         int x = player.getLocation().getChunk().getX();
         int y = player.getLocation().getChunk().getZ();
         Chunk chunk = new Chunk(x, y);
 
+        // if the player entered a radius, lets get that
         int radius = 0;
 
         if(context.args.length >= 2) {
@@ -84,6 +91,7 @@ public class ChunkCommands implements CommandExecutor {
             }
         }
 
+        // add the selected chunks to the chunklist
         try {
             plugin.addChunk(chunk);
             context.sender.sendMessage("Set " + chunk.toString() + " to stay loaded");
@@ -97,14 +105,19 @@ public class ChunkCommands implements CommandExecutor {
 
     private boolean chunkRemove(CommandContext context) {
         // remove the chunk the player is currently standing in from the list
+
+        // only ingame players can use this command
         if(!(context.sender instanceof Player)) {
             context.sender.sendMessage("Only players can use the remove command.");
         }
 
+        // get the chunk the player is standing in
         Player player = (Player)context.sender;
         int x = player.getLocation().getChunk().getX();
         int y = player.getLocation().getChunk().getZ();
         Chunk chunk = new Chunk(x, y);
+
+        // try to remove that chunk from the list
         try {
             plugin.removeChunk(chunk);
             context.sender.sendMessage("Removed " + chunk.toString() + " from loaded list");
@@ -126,20 +139,31 @@ public class ChunkCommands implements CommandExecutor {
     private boolean chunkLoad(CommandContext context) {
         // load the current list from file
         context.sender.sendMessage("Loaded chunks");
+        try {
+            plugin.loadChunks();
+        }
+        catch(FileNotFoundException e) {
+            context.sender.sendMessage("No chunk file found.");
+        }
         return true;
     }
 
     private boolean chunkCheck(CommandContext context) {
         // check if the chunk the player is currently standing on is in the list
         // remove the chunk the player is currently standing in from the list
+
+        // only ingame players can use this command
         if(!(context.sender instanceof Player)) {
             context.sender.sendMessage("Only players can use the check command.");
         }
 
+        // get the chunk the player is standing on
         Player player = (Player)context.sender;
         int x = player.getLocation().getChunk().getX();
         int y = player.getLocation().getChunk().getZ();
         Chunk chunk = new Chunk(x, y);
+
+        // check if the chunk is set to stay loaded and tell the player
         boolean result = plugin.findChunk(chunk);
         context.sender.sendMessage(chunk.toString() + " load status is: " + result);
         return true;

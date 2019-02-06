@@ -15,6 +15,9 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        // runs when the program starts, essentially the main()
+
+        // try to load the chunk data from file
         try {
             chunks = loadChunks();
         }
@@ -23,45 +26,55 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
             chunks = new ChunkList();
         }
 
+        // link up command executors and event listeners
         getCommand("chunk").setExecutor(new ChunkCommands(this));
         getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
     public void onDisable() {
+        // runs when the server closes or the plugin is reloaded
         saveChunks();
     }
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent e) {
+        // this will run whenever a chunk is unloaded
+
         /*
-        TODO: Make it where we keep a 5x5 grid of chunks loaded with specified chunks as the center
-              So that we can keep chunks loaded in a way that will process entities
+        TODO: Make it where we keep a nxn grid of chunks loaded with specified chunks as the center
+              So that we can keep chunks loaded in a way that will process entities. n is a radius
+              that the player can enter as a command parameter (optional)
          */
+
+        // get the location of the chunk so that we can use it to create our own chunk object
         int x = e.getChunk().getX();
         int y = e.getChunk().getZ();
 
+        // create our own chunk object and check if its in the list
         Chunk chunk = new Chunk(x, y);
         if(chunks.find(chunk) >= 0) {
-            // don't unload this chunk its in the list come on what are you doing
-            log("Server wanted to unload " + chunk.toString() + " but we saved it.");
+            // cancel the event if the chunk is in the list. this will keep the chunk loaded.
             e.setCancelled(true);
         }
     }
 
     public void addChunk(Chunk chunk) throws AlreadyExistsException {
+        // public method to allow other sources to add chunks to the list
         log("Adding chunk " + chunk.toString());
         chunks.insert(chunk);
         log("Chunks are now " + chunks.toString());
     }
 
     public void removeChunk(Chunk chunk) throws ChunkNotFoundException {
+        // public method to allow other sources to remove chunks from the list
         log("Removing chunk " + chunk.toString());
         chunks.remove(chunk);
         log("Chunks are now " + chunks.toString());
     }
 
     public boolean findChunk(Chunk chunk) {
+        // public method to allow other sources to check if a chunk is in the list
         log("Chunks are " + chunks.toString());
         boolean result = (chunks.find(chunk) >= 0);
         log("Looking for " + chunk.toString() + " (" + result + ")");
@@ -69,13 +82,16 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
     }
 
     public void saveChunks() {
+        // tries to save the chunk data to a file "plugins/chunkloader/chunks.cl"
         log("Saving chunks to file...");
 
+        // don't bother if the list is empty
         if(chunks.size() == 0) {
             log("No chunks to save!");
             return;
         }
 
+        // either open or create a new file
         File file = new File("plugins/chunkloader/chunks.cl");
         try {
             if(!file.exists()) {
@@ -86,13 +102,16 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
         catch(IOException e) {
             err("Error in making output file! Will not be able to save chunks.");
             err(e.getMessage());
+            return;
         }
 
+        // open up a file stream and object stream to store the chunk data in a file
         FileOutputStream fileStream;
         ObjectOutputStream out;
         try {
             fileStream = new FileOutputStream(file);
             try {
+                // write data
                 out = new ObjectOutputStream(fileStream);
                 out.writeObject(chunks);
                 out.close();
@@ -115,15 +134,19 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
     }
 
     public ChunkList loadChunks() throws FileNotFoundException {
+        // tries to load chunk data from "plugins/chunkloader/chunks.cl"
         log("Loading chunks from file...");
 
+        // open up the file stream and object stream
         FileInputStream file;
         ObjectInputStream in;
         ChunkList list = null;
 
         file = new FileInputStream("plugins/chunkloader/chunks.cl");
         try {
+            // read object data from file
             in = new ObjectInputStream(file);
+            // cast raw data to chunklist object
             list = (ChunkList)in.readObject();
             in.close();
         }
@@ -136,14 +159,17 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
     }
 
     public void log(String msg) {
+        // wrapper for the bukkit logger to allow shorthand logging
         getLogger().info(msg);
     }
 
     public void err(String msg) {
+        // wrapper for the bukkit logger to allow shorthand logging
         getLogger().severe(msg);
     }
 
     public void testChunkList() {
+        // tests several aspects of the ChunkList object, mainly for how long it takes to process data
         log("|-------------------- START TESTING --------------------|");
         long startTime = System.currentTimeMillis();
         Random rand = new Random();
