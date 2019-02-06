@@ -1,0 +1,10 @@
+name: ChunkLoader
+main: ChunkLoader.ChunkPlugin
+version: 0.1
+author: Numenization
+commands:
+  chunk:
+    description: Command to handle chunks.
+    usage: /chunk (add|remove|save|load|check)
+    permission: chunkloader.chunk
+    permission-message: You don't have the permissions to use this command
