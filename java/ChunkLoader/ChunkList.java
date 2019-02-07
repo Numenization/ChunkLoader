@@ -31,10 +31,10 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
     // linear sorted insert. iterates through the list until it finds a chunk that is bigger than it,
     // then the chunk will be inserted at that index and every other chunk is shifted right
     // throws AlreadyExistsException if the chunk is already in the list
-    public void insert(Chunk chunk) throws AlreadyExistsException {
+    public int insert(Chunk chunk) throws AlreadyExistsException {
         if(chunks.size() == 0) {
             chunks.add(chunk);
-            return;
+            return 0;
         }
 
         for(int i = 0; i < chunks.size(); i++) {
@@ -44,20 +44,44 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
             }
             else if(comparison < 0) {
                 chunks.add(i, chunk);
-                return;
+                return i;
             }
         }
 
         chunks.add(chunk);
+        return 0;
     }
 
     // binary sorted insert. find the correct insertion point using binary search methods, insert at that position,
     // then shift everything that was at that position and beyond to the right.
-    public void insert(Chunk chunk, boolean binary) {
+    public int insert(Chunk chunk, boolean binary) throws AlreadyExistsException {
         if(chunks.size() == 0) {
-            
+            chunks.add(chunk);
+            return 0;
         }
 
+        int left = 0;
+        int right = chunks.size() - 1;
+        int mid = (left + right) / 2;
+
+        while(right > left) {
+            int comparison = chunk.compareTo(chunks.get(mid));
+            if(comparison == 0) {
+                throw new AlreadyExistsException("Chunk already in list!");
+            }
+            else if(comparison > 0) {
+                // chunk to be inserted is bigger than middle value
+                left = mid + 1;
+                mid = (left + right) / 2;
+            }
+            else {
+                // chunk to be inserted is smaller than middle value
+                right = mid - 1;
+                mid = (left + right) / 2;
+            }
+        }
+
+        return left;
     }
 
     // finds a chunk in a list and removes it if it exists. throws ChunkNotFound exception if it doesn't exist.

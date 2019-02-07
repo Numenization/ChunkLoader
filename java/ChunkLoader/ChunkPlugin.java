@@ -17,6 +17,9 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         // runs when the program starts, essentially the main()
 
+        testBinaryInsert();
+        return;
+
         // try to load the chunk data from file
         try {
             chunks = loadChunks();
@@ -166,6 +169,26 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
     public void err(String msg) {
         // wrapper for the bukkit logger to allow shorthand logging
         getLogger().severe(msg);
+    }
+
+    public void testBinaryInsert() {
+        ChunkList temp = new ChunkList();
+        Random rand = new Random();
+
+        for(int i = 0; i < 10; i++) {
+            int x = rand.nextInt(200) - 100;
+            int y = rand.nextInt(200) - 100;
+            try {
+                Chunk chunk = new Chunk(x, y);
+                log(temp + "\nNew Chunk: " + chunk);
+                int normal = temp.insert(chunk);
+                int binary = temp.insert(chunk, true);
+                log(normal + " / " + binary);
+            }
+            catch(Exception e) {
+                // hi
+            }
+        }
     }
 
     public void testChunkList() {
