@@ -17,6 +17,7 @@ public final class Chunk implements Comparable<Chunk>, Serializable {
         return this.toString().compareTo(other.toString());
     }
 
+    @Override
     public String toString() {
         return "[Chunk: ("+ x + "," + y + ")]";
     }

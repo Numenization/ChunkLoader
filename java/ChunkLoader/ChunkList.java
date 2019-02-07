@@ -8,12 +8,14 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
     // keep chunks in a sorted arraylist. sort by using a sorted insert. use a string generated based on the chunks
     // coordinates for comparison, "[Chunk: (x,y)]"
 
+    // exception intended to be thrown when a chunk is added to a list in which it is already in
     public final class AlreadyExistsException extends Exception {
         public AlreadyExistsException(String errorMessage) {
             super(errorMessage);
         }
     }
 
+    // exception intended to be thrown when a chunk is removed from a list in which it is not in
     public final class ChunkNotFoundException extends Exception {
         public ChunkNotFoundException(String errorMessage) {
             super(errorMessage);
@@ -26,6 +28,9 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
         chunks = new ArrayList<>();
     }
 
+    // linear sorted insert. iterates through the list until it finds a chunk that is bigger than it,
+    // then the chunk will be inserted at that index and every other chunk is shifted right
+    // throws AlreadyExistsException if the chunk is already in the list
     public void insert(Chunk chunk) throws AlreadyExistsException {
         if(chunks.size() == 0) {
             chunks.add(chunk);
@@ -46,6 +51,16 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
         chunks.add(chunk);
     }
 
+    // binary sorted insert. find the correct insertion point using binary search methods, insert at that position,
+    // then shift everything that was at that position and beyond to the right.
+    public void insert(Chunk chunk, boolean binary) {
+        if(chunks.size() == 0) {
+            
+        }
+
+    }
+
+    // finds a chunk in a list and removes it if it exists. throws ChunkNotFound exception if it doesn't exist.
     public void remove(Chunk chunk) throws ChunkNotFoundException {
         int index = find(chunk);
         if(index < 0) {
@@ -55,8 +70,9 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
         chunks.remove(index);
     }
 
-    // returns true if chunk is in list
-    // starting point for find method so we don't need to enter start/end
+    // searches chunk list with a binary search. this public level method that is intended to be called elsewhere
+    // starts off the search assuming the beginning and end indicies to search are the beginning and end of the list.
+    // from there it will recursively search with the findRecursive method, with dynamic start/end
     public int find(Chunk chunk) {
         if(chunks.size() == 0) {
             return -1;
@@ -128,6 +144,7 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
         return -1;
     }
 
+    // just returns the size of the chunk list
     public int size() {
         return chunks.size();
     }
@@ -137,6 +154,7 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
         return chunks.iterator();
     }
 
+    // toString override that will build a string with the name of every chunk in the list separated by spaces
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
