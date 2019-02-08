@@ -43,12 +43,6 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
     public void onChunkUnload(ChunkUnloadEvent e) {
         // this will run whenever a chunk is unloaded
 
-        /*
-        TODO: Make it where we keep a nxn grid of chunks loaded with specified chunks as the center
-              So that we can keep chunks loaded in a way that will process entities. n is a radius
-              that the player can enter as a command parameter (optional)
-         */
-
         // get the location of the chunk so that we can use it to create our own chunk object
         int x = e.getChunk().getX();
         int y = e.getChunk().getZ();
@@ -65,21 +59,18 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
         // public method to allow other sources to add chunks to the list
         log("Adding chunk " + chunk.toString());
         chunks.insert(chunk);
-        log("Chunks are now " + chunks.toString());
     }
 
     public void removeChunk(Chunk chunk) throws ChunkNotFoundException {
         // public method to allow other sources to remove chunks from the list
         log("Removing chunk " + chunk.toString());
         chunks.remove(chunk);
-        log("Chunks are now " + chunks.toString());
     }
 
     public boolean findChunk(Chunk chunk) {
         // public method to allow other sources to check if a chunk is in the list
-        log("Chunks are " + chunks.toString());
         boolean result = (chunks.find(chunk) >= 0);
-        log("Looking for " + chunk.toString() + " (" + result + ")");
+        log("Checking " + chunk.toString() + " (loaded: " + result + ")");
         return result;
     }
 

@@ -92,15 +92,27 @@ public class ChunkCommands implements CommandExecutor {
         }
 
         // add the selected chunks to the chunklist
-        try {
-            plugin.addChunk(chunk);
-            context.sender.sendMessage("Set " + chunk.toString() + " to stay loaded");
-            return true;
+        if(radius == 0) {
+            try {
+                plugin.addChunk(chunk);
+                context.sender.sendMessage("Set " + chunk.toString() + " to stay loaded");
+                return true;
+            }
+            catch(AlreadyExistsException e) {
+                context.sender.sendMessage(chunk.toString() + " is already set to stay loaded.");
+                return true;
+            }
         }
-        catch(AlreadyExistsException e) {
-            context.sender.sendMessage(chunk.toString() + " is already set to stay loaded.");
-            return true;
+        for(Chunk ch : getChunksInSquare(radius, chunk)) {
+            try {
+                plugin.addChunk(ch);
+                context.sender.sendMessage("Set " + ch.toString() + " to stay loaded");
+            }
+            catch(AlreadyExistsException e) {
+                // ignore
+            }
         }
+        return true;
     }
 
     private boolean chunkRemove(CommandContext context) {
@@ -117,16 +129,41 @@ public class ChunkCommands implements CommandExecutor {
         int y = player.getLocation().getChunk().getZ();
         Chunk chunk = new Chunk(x, y);
 
+        // if the player entered a radius, lets get that
+        int radius = 0;
+
+        if(context.args.length >= 2) {
+            try {
+                radius = Integer.parseInt(context.args[1]);
+            }
+            catch(NumberFormatException e) {
+                context.sender.sendMessage("Could not parse radius. Should be an integer.");
+                return true;
+            }
+        }
+
         // try to remove that chunk from the list
-        try {
-            plugin.removeChunk(chunk);
-            context.sender.sendMessage("Removed " + chunk.toString() + " from loaded list");
-            return true;
+        if(radius == 0) {
+            try {
+                plugin.removeChunk(chunk);
+                context.sender.sendMessage("Removed " + chunk.toString() + " from list");
+                return true;
+            }
+            catch(ChunkNotFoundException e) {
+                context.sender.sendMessage("Chunk " + chunk + " not in loaded list!");
+                return true;
+            }
         }
-        catch(ChunkNotFoundException e) {
-            context.sender.sendMessage(chunk.toString() + " is not set to load.");
-            return true;
+        for(Chunk ch : getChunksInSquare(radius, chunk)) {
+            try {
+                plugin.removeChunk(ch);
+                context.sender.sendMessage("Removed " + ch.toString() + " from list");
+            }
+            catch(ChunkNotFoundException e) {
+                // ignore
+            }
         }
+        return true;
     }
 
     private boolean chunkSave(CommandContext context) {
@@ -167,5 +204,26 @@ public class ChunkCommands implements CommandExecutor {
         boolean result = plugin.findChunk(chunk);
         context.sender.sendMessage(chunk.toString() + " load status is: " + result);
         return true;
+    }
+
+    private Chunk[] getChunksInSquare(int radius, Chunk origin) {
+        int rowLength = (radius * 2) + 1;
+        int numChunks = (int)Math.pow(rowLength, 2);
+        Chunk[] chunks = new Chunk[numChunks];
+        // get bottom left corner to be (x, y)
+        int x = origin.getX() - radius;
+        int y = origin.getY() - radius;
+        int index = 0;
+        for(int i = 0; i < rowLength; i++) {
+            int offsetY = y + i;
+            for(int j = 0; j < rowLength; j++) {
+                int offsetX = x + j;
+                Chunk chunk = new Chunk(offsetX, offsetY);
+                chunks[index] = chunk;
+                index++;
+            }
+        }
+
+        return chunks;
     }
 }
