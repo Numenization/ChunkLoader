@@ -17,8 +17,7 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         // runs when the program starts, essentially the main()
 
-        testBinaryInsert();
-        return;
+        testChunkList();
 
         // try to load the chunk data from file
         try {
@@ -171,28 +170,73 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
         getLogger().severe(msg);
     }
 
+    /*
+
     public void testBinaryInsert() {
         ChunkList temp = new ChunkList();
+        ChunkList temp2 = new ChunkList();
+        ArrayList<Chunk> list = new ArrayList<>();
         Random rand = new Random();
 
-        for(int i = 0; i < 10; i++) {
-            int x = rand.nextInt(200) - 100;
-            int y = rand.nextInt(200) - 100;
+        log("Generating chunks for testing...");
+        for(int i = 0; i < 40000; i++) {
+            int x = rand.nextInt(20000) - 10000;
+            int y = rand.nextInt(20000) - 10000;
             try {
                 Chunk chunk = new Chunk(x, y);
-                log(temp + "\nNew Chunk: " + chunk);
-                int normal = temp.insert(chunk);
-                int binary = temp.insert(chunk, true);
-                log(normal + " / " + binary);
+                list.add(chunk);
+            }
+            catch(Exception e) {
+                //log(e.getMessage());
+            }
+        }
+        log("Chunks generated.");
+
+        log("Inserting chunks with linear insert...");
+        long normalTimer = System.currentTimeMillis();
+        for(Chunk chunk : list) {
+            try {
+                temp.insert(chunk);
             }
             catch(Exception e) {
                 // hi
             }
         }
+        long normalTime = System.currentTimeMillis() - normalTimer;
+        log("Linear insertion done. Time: " + normalTime);
+
+        log("Inserting chunks with binary insert...");
+        long binaryTimer = System.currentTimeMillis();
+        for(Chunk chunk : list) {
+            try {
+                temp2.insert(chunk, true);
+            }
+            catch(Exception e) {
+                // hi
+            }
+        }
+        long binaryTime = System.currentTimeMillis() - binaryTimer;
+        log("Binary insertion done. Time: " + binaryTime);
+
+        log("Verifying both lists are the same...");
+        for(int i = 0; i < temp.size(); i++) {
+            Chunk chunk1 = temp.at(i);
+            Chunk chunk2 = temp2.at(i);
+            if((chunk1.getX() != chunk2.getX()) || (chunk1.getY() != chunk2.getY())) {
+                err("Lists got different somehow! (" + chunk1 + " vs " + chunk2 + ") at index " + i);
+                return;
+            }
+        }
+        log("Both lists are the same.");
+
+        log("Final result: Both insertions produced same result and time difference is " + (normalTime - binaryTime));
     }
+
+    */
 
     public void testChunkList() {
         // tests several aspects of the ChunkList object, mainly for how long it takes to process data
+        ChunkList temp = new ChunkList();
         log("|-------------------- START TESTING --------------------|");
         long startTime = System.currentTimeMillis();
         Random rand = new Random();
@@ -204,20 +248,20 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
                 Chunk tempChunk = new Chunk(x, y);
                 if(rand.nextInt(3) == 2)
                     testList.add(tempChunk);
-                chunks.insert(tempChunk);
+                temp.insert(tempChunk);
             }
             catch(AlreadyExistsException e) {
                 //getLogger().info("Chunk already exists, cannot add...");
             }
         }
 
-        log("Added " + chunks.size() + " chunks. Took " +
+        log("Added " + temp.size() + " chunks. Took " +
                 (System.currentTimeMillis() - startTime) + " ms");
         long medianTime = System.currentTimeMillis();
         log("Testing chunk finding, looking for " + testList.size() + " chunks...");
 
         for(Chunk chunk : testList) {
-            int result = chunks.find(chunk);
+            int result = temp.find(chunk);
             if (result < 0) {
                 err("Something went very wrong with chunk list!");
                 return;
@@ -230,7 +274,7 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
         log("Testing chunk that shouldn't exist...");
         long bsTimer = System.currentTimeMillis();
         Chunk bsChunk = new Chunk(-99999,99999);
-        int in = chunks.find(bsChunk);
+        int in = temp.find(bsChunk);
         boolean result = in >= 0;
         log("Result: " + result + " Took: " + (System.currentTimeMillis() - bsTimer) + " ms");
 
@@ -239,7 +283,7 @@ public final class ChunkPlugin extends JavaPlugin implements Listener {
             long time = System.currentTimeMillis();
             Chunk chunk = new Chunk(100000 + i, 100000 + i);
             try {
-                chunks.insert(chunk);
+                temp.insert(chunk);
             }
             catch (Exception e) {
                 // hi

@@ -12,6 +12,14 @@ public final class Chunk implements Comparable<Chunk>, Serializable {
         y = y_coord;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
     @Override
     public int compareTo(Chunk other) {
         return this.toString().compareTo(other.toString());
