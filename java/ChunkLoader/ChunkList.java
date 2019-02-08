@@ -101,6 +101,50 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
         chunks.remove(index);
     }
 
+    // iterative binary search for chunk list
+    public int find(Chunk chunk) {
+        if(chunks.size() == 0) {
+            return -1;
+        }
+        if(chunks.size() == 1) {
+            if(chunks.get(0).compareTo(chunk) == 0)
+                return 0;
+            else
+                return -1;
+        }
+
+        int right = chunks.size() - 1;
+        int left = 0;
+        int mid;
+
+        while(right >= left) {
+            mid = (right + left) / 2;
+            int comparison = chunk.compareTo(chunks.get(mid));
+
+            if(comparison == 0) {
+                return mid;
+            }
+
+            // fixes a weird bug with rounding
+            if(mid < chunks.size() - 1) {
+                if(chunks.get(mid + 1).compareTo(chunk) == 0) {
+                    return mid + 1;
+                }
+            }
+
+            if(comparison > 0) {
+                left = mid + 1;
+            }
+            else {
+                right = mid - 1;
+            }
+        }
+
+        return -1;
+    }
+
+    /*
+
     // searches chunk list with a binary search. this public level method that is intended to be called elsewhere
     // starts off the search assuming the beginning and end indicies to search are the beginning and end of the list.
     // from there it will recursively search with the findRecursive method, with dynamic start/end
@@ -174,6 +218,8 @@ public class ChunkList implements Iterable<Chunk>, Serializable {
 
         return -1;
     }
+
+    */
 
     // just returns the size of the chunk list
     public int size() {

@@ -6,10 +6,18 @@ import java.io.Serializable;
 public final class Chunk implements Comparable<Chunk>, Serializable {
     private int x;
     private int y;
+    private String world;
 
-    public Chunk(int x_coord, int y_coord) {
-        x = x_coord;
-        y = y_coord;
+    public Chunk(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.world = null;
+    }
+
+    public Chunk(int x, int y, String world) {
+        this.x = x;
+        this.y = y;
+        this.world = world;
     }
 
     public int getX() {
@@ -18,6 +26,10 @@ public final class Chunk implements Comparable<Chunk>, Serializable {
 
     public int getY() {
         return y;
+    }
+
+    public String getWorld() {
+        return world;
     }
 
     @Override

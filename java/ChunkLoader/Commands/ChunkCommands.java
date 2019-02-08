@@ -74,9 +74,10 @@ public class ChunkCommands implements CommandExecutor {
 
         // get chunk the player is standing in
         Player player = (Player)context.sender;
+        String world = player.getWorld().getName();
         int x = player.getLocation().getChunk().getX();
         int y = player.getLocation().getChunk().getZ();
-        Chunk chunk = new Chunk(x, y);
+        Chunk chunk = new Chunk(x, y, world);
 
         // if the player entered a radius, lets get that
         int radius = 0;
@@ -218,7 +219,7 @@ public class ChunkCommands implements CommandExecutor {
             int offsetY = y + i;
             for(int j = 0; j < rowLength; j++) {
                 int offsetX = x + j;
-                Chunk chunk = new Chunk(offsetX, offsetY);
+                Chunk chunk = new Chunk(offsetX, offsetY, origin.getWorld());
                 chunks[index] = chunk;
                 index++;
             }
